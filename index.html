@@ -53,8 +53,11 @@
           </section>
 
           <section>
-            <h3>업로드 (곡 / MR)</h3>
-            <form class="upload-form grid-form mini">
+            <div class="section-head">
+              <h3>업로드 (곡 / MR)</h3>
+              <button type="button" class="ghost mini-toggle upload-toggle">입력 열기</button>
+            </div>
+            <form class="upload-form grid-form mini hidden-form" hidden>
               <label>
                 업로더
                 <input class="uploader" type="text" placeholder="이름" required />
@@ -76,8 +79,11 @@
           </section>
 
           <section>
-            <h3>피드백</h3>
-            <form class="feedback-form grid-form mini">
+            <div class="section-head">
+              <h3>피드백</h3>
+              <button type="button" class="ghost mini-toggle feedback-toggle">입력 열기</button>
+            </div>
+            <form class="feedback-form grid-form mini hidden-form" hidden>
               <label>
                 작성자
                 <input class="feedback-author" type="text" required />

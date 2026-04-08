@@ -171,6 +171,9 @@ function render() {
       : `<li class="meta">아직 피드백이 없습니다.</li>`;
 
     const uploadForm = fragment.querySelector(".upload-form");
+    const uploadToggleBtn = fragment.querySelector(".upload-toggle");
+    bindFormToggle(uploadToggleBtn, uploadForm);
+
     uploadForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const uploader = uploadForm.querySelector(".uploader").value.trim();
@@ -205,11 +208,16 @@ function render() {
         return;
       }
 
+      uploadForm.hidden = true;
+      uploadToggleBtn.textContent = "입력 열기";
       await loadData();
       render();
     });
 
     const feedbackForm = fragment.querySelector(".feedback-form");
+    const feedbackToggleBtn = fragment.querySelector(".feedback-toggle");
+    bindFormToggle(feedbackToggleBtn, feedbackForm);
+
     feedbackForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const author = feedbackForm.querySelector(".feedback-author").value.trim();
@@ -222,6 +230,8 @@ function render() {
         return;
       }
 
+      feedbackForm.hidden = true;
+      feedbackToggleBtn.textContent = "입력 열기";
       await loadData();
       render();
     });
@@ -254,6 +264,16 @@ function render() {
 
     trackListEl.appendChild(fragment);
   }
+}
+
+
+function bindFormToggle(button, form) {
+  if (!button || !form) return;
+  button.addEventListener("click", () => {
+    const nextHidden = !form.hidden;
+    form.hidden = nextHidden;
+    button.textContent = nextHidden ? "입력 열기" : "입력 닫기";
+  });
 }
 
 function groupBy(rows, key) {

@@ -121,6 +121,30 @@ button {
   min-height: 42px;
 }
 
+button.ghost {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.mini-toggle {
+  min-height: 32px;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+}
+
+.hidden-form {
+  margin-bottom: 10px;
+}
+
 .track-list {
   display: grid;
   gap: 10px;
@@ -237,6 +261,10 @@ audio {
   .track-toggle span:last-child {
     font-size: 0.85rem;
     opacity: 0.9;
+  }
+
+  .section-head {
+    flex-wrap: wrap;
   }
 
   input,
