@@ -100,7 +100,7 @@ create policy "public write lyrics" on public.lyrics_history for insert with che
    - `SUPABASE_URL`
    - `SUPABASE_ANON_KEY`
    - `SUPABASE_STORAGE_BUCKET`
-3. 재배포하면 `vercel.json` + `npm run build`가 `config.local.js`를 자동 생성
+3. 재배포하면 `vercel.json` + `npm run build`가 `public/` 폴더와 `public/config.local.js`를 자동 생성
 
 > 즉, **Vercel에서는 GitHub 변수 없이도 동작**합니다. (Vercel 변수만 있으면 됨)
 
