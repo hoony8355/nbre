@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NBRE Music Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="background-glow" aria-hidden="true"></div>
+    <main class="container">
+      <header class="hero">
+        <p class="badge">HIPHOP TEAM WORKSPACE</p>
+        <h1>NBRE 음악 스케치 대시보드</h1>
+        <p>
+          Supabase 기반으로 팀 전체가 같은 곡/피드백/가사를 실시간으로 확인할 수 있습니다.
+        </p>
+        <p id="connection-status" class="meta">연결 확인 중...</p>
+      </header>
+
+      <section class="card">
+        <h2>곡 추가</h2>
+        <form id="add-track-form" class="grid-form">
+          <label>
+            곡 제목
+            <input id="track-title" type="text" placeholder="예: Midnight Draft" required />
+          </label>
+          <label>
+            생성자
+            <input id="track-owner" type="text" placeholder="예: Min" required />
+          </label>
+          <label class="full">
+            메모
+            <textarea id="track-note" rows="2" placeholder="첫 아이디어 메모"></textarea>
+          </label>
+          <button type="submit">+ 곡 생성</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>곡 목록</h2>
+        <div id="track-list" class="track-list"></div>
+      </section>
+    </main>
+
+    <template id="track-template">
+      <article class="track-item">
+        <button class="track-toggle" type="button"></button>
+        <div class="track-body hidden">
+          <section>
+            <h3>최신 버전</h3>
+            <div class="latest-box"></div>
+          </section>
+
+          <section>
+            <h3>업로드 (곡 / MR)</h3>
+            <form class="upload-form grid-form mini">
+              <label>
+                업로더
+                <input class="uploader" type="text" placeholder="이름" required />
+              </label>
+              <label>
+                타입
+                <select class="version-type">
+                  <option value="song">곡 (보컬/스케치)</option>
+                  <option value="mr">MR (반주)</option>
+                </select>
+              </label>
+              <label class="full">
+                파일
+                <input class="audio-file" type="file" accept="audio/*" required />
+              </label>
+              <button type="submit">업로드 & 최신 반영</button>
+            </form>
+            <div class="version-list"></div>
+          </section>
+
+          <section>
+            <h3>피드백</h3>
+            <form class="feedback-form grid-form mini">
+              <label>
+                작성자
+                <input class="feedback-author" type="text" required />
+              </label>
+              <label class="full">
+                내용
+                <textarea class="feedback-text" rows="2" required></textarea>
+              </label>
+              <button type="submit">피드백 등록</button>
+            </form>
+            <ul class="feedback-list"></ul>
+          </section>
+
+          <section>
+            <h3>가사 (최신본)</h3>
+            <form class="lyrics-form">
+              <label>
+                수정자
+                <input class="lyrics-editor" type="text" required />
+              </label>
+              <label>
+                가사
+                <textarea class="lyrics-text" rows="7" placeholder="가사를 입력하세요"></textarea>
+              </label>
+              <button type="submit">가사 업데이트</button>
+            </form>
+          </section>
+        </div>
+      </article>
+    </template>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.local.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
