@@ -5,7 +5,7 @@ const addTrackForm = document.getElementById("add-track-form");
 const template = document.getElementById("track-template");
 
 const hasSupabaseConfig = Boolean(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY);
-const supabase = hasSupabaseConfig
+const sbClient = hasSupabaseConfig
   ? window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY)
   : null;
 
@@ -16,7 +16,7 @@ const state = {
   latestLyricsByTrack: new Map(),
 };
 
-if (!supabase) {
+if (!sbClient) {
   statusEl.textContent =
     "Supabase 설정이 없습니다. config.local.js에 SUPABASE_URL / SUPABASE_ANON_KEY를 설정하세요.";
   statusEl.style.color = "#ff9ab8";
@@ -32,14 +32,14 @@ if (!supabase) {
 
 addTrackForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  if (!supabase) return;
+  if (!sbClient) return;
 
   const title = document.getElementById("track-title").value.trim();
   const owner = document.getElementById("track-owner").value.trim();
   const note = document.getElementById("track-note").value.trim();
   if (!title || !owner) return;
 
-  const { error } = await supabase.from("tracks").insert({ title, owner, note });
+  const { error } = await sbClient.from("tracks").insert({ title, owner, note });
   if (error) {
     alert(`곡 생성 실패: ${error.message}`);
     return;
@@ -58,10 +58,10 @@ async function bootstrap() {
 
 async function loadData() {
   const [tracksRes, versionsRes, feedbackRes, lyricsRes] = await Promise.all([
-    supabase.from("tracks").select("*").order("created_at", { ascending: false }),
-    supabase.from("versions").select("*").order("created_at", { ascending: false }),
-    supabase.from("feedback").select("*").order("created_at", { ascending: false }),
-    supabase
+    sbClient.from("tracks").select("*").order("created_at", { ascending: false }),
+    sbClient.from("versions").select("*").order("created_at", { ascending: false }),
+    sbClient.from("feedback").select("*").order("created_at", { ascending: false }),
+    sbClient
       .from("lyrics_history")
       .select("*")
       .order("created_at", { ascending: false }),
@@ -83,7 +83,7 @@ async function loadData() {
 }
 
 function subscribeRealtime() {
-  const channel = supabase
+  const channel = sbClient
     .channel("music-dashboard-all")
     .on("postgres_changes", { event: "*", schema: "public", table: "tracks" }, syncNow)
     .on("postgres_changes", { event: "*", schema: "public", table: "versions" }, syncNow)
@@ -97,7 +97,7 @@ function subscribeRealtime() {
   }
 
   window.addEventListener("beforeunload", () => {
-    supabase.removeChannel(channel);
+    sbClient.removeChannel(channel);
   });
 }
 
@@ -182,16 +182,16 @@ function render() {
       const path = `${track.id}/${Date.now()}-${sanitizeFileName(file.name)}`;
       const bucket = cfg.SUPABASE_STORAGE_BUCKET || "music-files";
 
-      const uploadRes = await supabase.storage.from(bucket).upload(path, file, { upsert: false });
+      const uploadRes = await sbClient.storage.from(bucket).upload(path, file, { upsert: false });
       if (uploadRes.error) {
         alert(`파일 업로드 실패: ${uploadRes.error.message}`);
         return;
       }
 
-      const publicUrlRes = supabase.storage.from(bucket).getPublicUrl(path);
+      const publicUrlRes = sbClient.storage.from(bucket).getPublicUrl(path);
       const publicUrl = publicUrlRes.data.publicUrl;
 
-      const { error } = await supabase.from("versions").insert({
+      const { error } = await sbClient.from("versions").insert({
         track_id: track.id,
         type,
         uploader,
@@ -216,7 +216,7 @@ function render() {
       const text = feedbackForm.querySelector(".feedback-text").value.trim();
       if (!author || !text) return;
 
-      const { error } = await supabase.from("feedback").insert({ track_id: track.id, author, text });
+      const { error } = await sbClient.from("feedback").insert({ track_id: track.id, author, text });
       if (error) {
         alert(`피드백 저장 실패: ${error.message}`);
         return;
@@ -236,7 +236,7 @@ function render() {
       const lyrics = lyricsForm.querySelector(".lyrics-text").value;
       if (!editor) return;
 
-      const { error } = await supabase.from("lyrics_history").insert({ track_id: track.id, editor, lyrics });
+      const { error } = await sbClient.from("lyrics_history").insert({ track_id: track.id, editor, lyrics });
       if (error) {
         alert(`가사 업데이트 실패: ${error.message}`);
         return;
