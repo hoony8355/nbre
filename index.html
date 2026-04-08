@@ -12,34 +12,37 @@
       <header class="hero">
         <p class="badge">HIPHOP TEAM WORKSPACE</p>
         <h1>NBRE 음악 스케치 대시보드</h1>
-        <p>
-          Supabase 기반으로 팀 전체가 같은 곡/피드백/가사를 실시간으로 확인할 수 있습니다.
-        </p>
+        <p>곡을 눌러 최신 버전만 바로 듣고, 필요할 때만 가사/MR/업데이트를 열어서 작업하세요.</p>
         <p id="connection-status" class="meta">연결 확인 중...</p>
       </header>
 
-      <section class="card">
-        <h2>곡 추가</h2>
-        <form id="add-track-form" class="grid-form">
-          <label>
-            곡 제목
-            <input id="track-title" type="text" placeholder="예: Midnight Draft" required />
-          </label>
-          <label>
-            생성자
-            <input id="track-owner" type="text" placeholder="예: Min" required />
-          </label>
-          <label class="full">
-            메모
-            <textarea id="track-note" rows="2" placeholder="첫 아이디어 메모"></textarea>
-          </label>
-          <button type="submit">+ 곡 생성</button>
-        </form>
-      </section>
-
-      <section class="card">
+      <section class="card list-card">
         <h2>곡 목록</h2>
         <div id="track-list" class="track-list"></div>
+
+        <button id="open-add-track" class="fab" type="button">+ 곡 추가</button>
+
+        <div id="add-track-panel" class="add-track-panel" hidden>
+          <div class="section-head">
+            <h3>곡 등록</h3>
+            <button id="close-add-track" class="ghost mini-toggle" type="button">닫기</button>
+          </div>
+          <form id="add-track-form" class="grid-form">
+            <label>
+              곡 제목
+              <input id="track-title" type="text" placeholder="예: Midnight Draft" required />
+            </label>
+            <label>
+              생성자
+              <input id="track-owner" type="text" placeholder="예: Min" required />
+            </label>
+            <label class="full">
+              메모
+              <textarea id="track-note" rows="2" placeholder="첫 아이디어 메모"></textarea>
+            </label>
+            <button type="submit">곡 생성</button>
+          </form>
+        </div>
       </section>
     </main>
 
@@ -52,12 +55,18 @@
             <div class="latest-box"></div>
           </section>
 
-          <section>
+          <div class="action-row">
+            <button type="button" class="ghost mini-toggle action-lyrics">가사 보기</button>
+            <button type="button" class="ghost mini-toggle action-mr">MR 보기</button>
+            <button type="button" class="ghost mini-toggle action-upload">곡 업데이트</button>
+            <button type="button" class="ghost mini-toggle action-feedback">피드백</button>
+          </div>
+
+          <section class="panel panel-upload" hidden>
             <div class="section-head">
               <h3>업로드 (곡 / MR)</h3>
-              <button type="button" class="ghost mini-toggle upload-toggle">입력 열기</button>
             </div>
-            <form class="upload-form grid-form mini hidden-form" hidden>
+            <form class="upload-form grid-form mini">
               <label>
                 업로더
                 <input class="uploader" type="text" placeholder="이름" required />
@@ -75,15 +84,16 @@
               </label>
               <button type="submit">업로드 & 최신 반영</button>
             </form>
-            <div class="version-list"></div>
           </section>
 
-          <section>
-            <div class="section-head">
-              <h3>피드백</h3>
-              <button type="button" class="ghost mini-toggle feedback-toggle">입력 열기</button>
-            </div>
-            <form class="feedback-form grid-form mini hidden-form" hidden>
+          <section class="panel panel-mr" hidden>
+            <h3>MR 목록</h3>
+            <div class="mr-list"></div>
+          </section>
+
+          <section class="panel panel-feedback" hidden>
+            <h3>피드백</h3>
+            <form class="feedback-form grid-form mini">
               <label>
                 작성자
                 <input class="feedback-author" type="text" required />
@@ -97,7 +107,7 @@
             <ul class="feedback-list"></ul>
           </section>
 
-          <section>
+          <section class="panel panel-lyrics" hidden>
             <h3>가사 (최신본)</h3>
             <form class="lyrics-form">
               <label>

@@ -2,6 +2,9 @@ const cfg = window.APP_CONFIG || {};
 const statusEl = document.getElementById("connection-status");
 const trackListEl = document.getElementById("track-list");
 const addTrackForm = document.getElementById("add-track-form");
+const openAddTrackBtn = document.getElementById("open-add-track");
+const closeAddTrackBtn = document.getElementById("close-add-track");
+const addTrackPanel = document.getElementById("add-track-panel");
 const template = document.getElementById("track-template");
 
 const hasSupabaseConfig = Boolean(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY);
@@ -30,6 +33,15 @@ if (!sbClient) {
   });
 }
 
+
+openAddTrackBtn?.addEventListener("click", () => {
+  addTrackPanel.hidden = false;
+});
+
+closeAddTrackBtn?.addEventListener("click", () => {
+  addTrackPanel.hidden = true;
+});
+
 addTrackForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!sbClient) return;
@@ -46,6 +58,7 @@ addTrackForm.addEventListener("submit", async (event) => {
   }
 
   addTrackForm.reset();
+  addTrackPanel.hidden = true;
   await loadData();
   render();
 });
@@ -118,7 +131,7 @@ function render() {
     const toggleBtn = fragment.querySelector(".track-toggle");
     const body = fragment.querySelector(".track-body");
     const latestBox = fragment.querySelector(".latest-box");
-    const versionList = fragment.querySelector(".version-list");
+    const mrList = fragment.querySelector(".mr-list");
     const feedbackList = fragment.querySelector(".feedback-list");
 
     toggleBtn.innerHTML = `
@@ -145,13 +158,14 @@ function render() {
       latestBox.insertAdjacentHTML("beforeend", `<p class="meta">메모: ${escapeHtml(track.note)}</p>`);
     }
 
-    versionList.innerHTML = versions.length
-      ? versions
+    const mrVersions = versions.filter((version) => version.type === "mr");
+    mrList.innerHTML = mrVersions.length
+      ? mrVersions
           .map(
             (version) => `
           <div class="version-item">
             <div>
-              <span class="type-tag ${version.type === "mr" ? "mr" : ""}">${version.type.toUpperCase()}</span>
+              <span class="type-tag mr">MR</span>
               <strong>${escapeHtml(version.file_name)}</strong>
             </div>
             <span class="meta">${escapeHtml(version.uploader)} · ${formatDate(version.created_at)}</span>
@@ -159,7 +173,7 @@ function render() {
           </div>`
           )
           .join("")
-      : `<p class="meta">업로드 이력이 없습니다.</p>`;
+      : `<p class="meta">등록된 MR이 없습니다.</p>`;
 
     feedbackList.innerHTML = feedback.length
       ? feedback
@@ -170,9 +184,17 @@ function render() {
           .join("")
       : `<li class="meta">아직 피드백이 없습니다.</li>`;
 
+    const uploadPanel = fragment.querySelector(".panel-upload");
+    const mrPanel = fragment.querySelector(".panel-mr");
+    const lyricsPanel = fragment.querySelector(".panel-lyrics");
+    const feedbackPanel = fragment.querySelector(".panel-feedback");
+
+    bindPanelToggle(fragment.querySelector(".action-upload"), uploadPanel);
+    bindPanelToggle(fragment.querySelector(".action-mr"), mrPanel);
+    bindPanelToggle(fragment.querySelector(".action-lyrics"), lyricsPanel);
+    bindPanelToggle(fragment.querySelector(".action-feedback"), feedbackPanel);
+
     const uploadForm = fragment.querySelector(".upload-form");
-    const uploadToggleBtn = fragment.querySelector(".upload-toggle");
-    bindFormToggle(uploadToggleBtn, uploadForm);
 
     uploadForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -208,16 +230,11 @@ function render() {
         return;
       }
 
-      uploadForm.hidden = true;
-      uploadToggleBtn.textContent = "입력 열기";
       await loadData();
       render();
     });
 
     const feedbackForm = fragment.querySelector(".feedback-form");
-    const feedbackToggleBtn = fragment.querySelector(".feedback-toggle");
-    bindFormToggle(feedbackToggleBtn, feedbackForm);
-
     feedbackForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const author = feedbackForm.querySelector(".feedback-author").value.trim();
@@ -230,8 +247,6 @@ function render() {
         return;
       }
 
-      feedbackForm.hidden = true;
-      feedbackToggleBtn.textContent = "입력 열기";
       await loadData();
       render();
     });
@@ -267,12 +282,10 @@ function render() {
 }
 
 
-function bindFormToggle(button, form) {
-  if (!button || !form) return;
+function bindPanelToggle(button, panel) {
+  if (!button || !panel) return;
   button.addEventListener("click", () => {
-    const nextHidden = !form.hidden;
-    form.hidden = nextHidden;
-    button.textContent = nextHidden ? "입력 열기" : "입력 닫기";
+    panel.hidden = !panel.hidden;
   });
 }
 
