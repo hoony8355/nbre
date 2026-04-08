@@ -94,31 +94,22 @@ create policy "public write lyrics" on public.lyrics_history for insert with che
 
 `config.example.js`를 참고해 `config.local.js`를 채우면 됩니다.
 
-## 3) Vercel에서 변수 설정
+## 3) Vercel에서 변수 설정 (권장)
 1. Vercel 프로젝트 → **Settings → Environment Variables**
-2. 위 3개 변수 추가
-3. 배포 시 아래처럼 `config.local.js`를 생성하도록 빌드 커맨드 사용
-
-예시 Build Command:
-```bash
-cat > config.local.js <<EOCONFIG
-window.APP_CONFIG = {
-  SUPABASE_URL: "${SUPABASE_URL}",
-  SUPABASE_ANON_KEY: "${SUPABASE_ANON_KEY}",
-  SUPABASE_STORAGE_BUCKET: "${SUPABASE_STORAGE_BUCKET}"
-};
-EOCONFIG
-```
-
-## 4) GitHub Pages에서 변수 설정
-GitHub Pages 정적 호스팅은 런타임 환경변수가 없어서, **GitHub Actions에서 빌드 중 파일 생성** 방식이 필요합니다.
-
-1. GitHub Repo → **Settings → Secrets and variables → Actions**
-2. Repository Secrets 추가:
+2. 아래 3개를 추가
    - `SUPABASE_URL`
    - `SUPABASE_ANON_KEY`
    - `SUPABASE_STORAGE_BUCKET`
-3. 배포 워크플로우에서 위와 동일하게 `config.local.js` 생성 후 아티팩트 배포
+3. 재배포하면 `vercel.json` + `npm run build`가 `config.local.js`를 자동 생성
+
+> 즉, **Vercel에서는 GitHub 변수 없이도 동작**합니다. (Vercel 변수만 있으면 됨)
+
+## 4) GitHub Pages에서 변수 설정
+GitHub Pages는 런타임 환경변수를 직접 주입할 수 없어서, 필요 시 **GitHub Actions + Secrets**로 `config.local.js`를 생성해야 합니다.
+
+1. GitHub Repo → **Settings → Secrets and variables → Actions**
+2. Repository Secrets 추가
+3. 워크플로우에서 빌드 중 `config.local.js` 생성
 
 ## 로컬 실행
 ```bash
