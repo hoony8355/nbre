@@ -295,7 +295,7 @@ button.ghost {
 
 .feedback-list {
   list-style: none;
-  margin: 0;
+  margin: 0 0 8px;
   padding: 10px;
   display: grid;
   gap: 8px;
