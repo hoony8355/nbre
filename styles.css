@@ -170,9 +170,15 @@ button.ghost {
 }
 
 .action-row {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
+}
+
+.action-row .mini-toggle {
+  min-height: 34px;
+  padding: 4px 8px;
+  font-size: 0.78rem;
 }
 
 .panel {
@@ -207,6 +213,9 @@ button.ghost {
 
 .player-controls button {
   flex: 1;
+  min-height: 36px;
+  padding: 6px 8px;
+  font-size: 0.82rem;
 }
 .track-list {
   display: grid;
@@ -335,6 +344,14 @@ audio {
     position: static;
   }
 
+  .action-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .bottom-player {
+    padding: 8px 10px;
+  }
+
   input,
   textarea,
   select,
@@ -367,7 +384,20 @@ audio {
     padding: 8px;
   }
 
-  button {
+  .grid-form > button,
+  .lyrics-form > button {
     width: 100%;
+  }
+
+  .action-row .mini-toggle,
+  .player-controls button {
+    width: auto;
+    min-height: 32px;
+    padding: 4px 6px;
+    font-size: 0.74rem;
+  }
+
+  .player-meta strong {
+    font-size: 0.92rem;
   }
 }
