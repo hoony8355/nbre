@@ -376,8 +376,11 @@ function updatePlayerMeta() {
 
 function bindPanelToggle(button, panel) {
   if (!button || !panel) return;
+  button.classList.toggle("is-active", !panel.hidden);
+
   button.addEventListener("click", () => {
     panel.hidden = !panel.hidden;
+    button.classList.toggle("is-active", !panel.hidden);
   });
 }
 

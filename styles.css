@@ -181,6 +181,13 @@ button.ghost {
   font-size: 0.78rem;
 }
 
+.action-row .mini-toggle.is-active {
+  background: linear-gradient(90deg, #4e2ca8, #7a3dff);
+  border: 1px solid #9f7bff;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(159, 123, 255, 0.25) inset;
+}
+
 .panel {
   border: 1px solid var(--line);
   border-radius: 10px;
