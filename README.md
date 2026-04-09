@@ -78,6 +78,7 @@ alter table public.feedback enable row level security;
 
 create policy "public read tracks" on public.tracks for select using (true);
 create policy "public write tracks" on public.tracks for insert with check (true);
+create policy "public update tracks" on public.tracks for update using (true) with check (true);
 
 create policy "public read versions" on public.versions for select using (true);
 create policy "public write versions" on public.versions for insert with check (true);

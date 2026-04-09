@@ -220,6 +220,60 @@ button.ghost {
   background: #0f0c18;
 }
 
+.upload-status {
+  margin: 4px 0 0;
+}
+
+.upload-progress {
+  margin-top: 6px;
+  width: 100%;
+  height: 6px;
+  background: #1d1630;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.upload-progress-bar {
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #00d4ff, #ad49ff);
+  transition: width 0.2s ease;
+}
+
+.toast-root {
+  position: fixed;
+  left: 50%;
+  bottom: 92px;
+  transform: translateX(-50%);
+  z-index: 40;
+  display: grid;
+  gap: 8px;
+  width: min(92vw, 360px);
+}
+
+.toast {
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #1b1430;
+  border: 1px solid #3f2f65;
+  color: #f2eeff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.toast.success {
+  border-color: #46d2b0;
+}
+
+.toast.error {
+  border-color: #ff6c9f;
+}
+
+.toast.hide {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
 .bottom-player {
   position: fixed;
   left: 0;

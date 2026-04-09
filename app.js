@@ -12,6 +12,7 @@ const playerSubEl = document.getElementById("player-track-sub");
 const playerPrevBtn = document.getElementById("player-prev");
 const playerPlayBtn = document.getElementById("player-play");
 const playerNextBtn = document.getElementById("player-next");
+const toastRoot = document.getElementById("toast-root");
 
 const ICON_PLAY = "▶";
 const ICON_PAUSE = "❚❚";
@@ -62,12 +63,13 @@ addTrackForm.addEventListener("submit", async (event) => {
 
   const { error } = await sbClient.from("tracks").insert({ title, owner, note });
   if (error) {
-    alert(`곡 생성 실패: ${error.message}`);
+    showToast(`곡 생성 실패: ${error.message}`, "error");
     return;
   }
 
   addTrackForm.reset();
   addTrackPanel.hidden = true;
+  showToast("곡이 생성되었습니다.", "success");
   await loadData();
   render();
 });
@@ -244,37 +246,55 @@ function render() {
       const uploader = uploadForm.querySelector(".uploader").value.trim();
       const type = uploadForm.querySelector(".version-type").value;
       const fileInput = uploadForm.querySelector(".audio-file");
+      const submitBtn = uploadForm.querySelector(".upload-submit-btn");
+      const statusEl = uploadForm.querySelector(".upload-status");
+      const progressWrap = uploadForm.querySelector(".upload-progress");
+      const progressBar = uploadForm.querySelector(".upload-progress-bar");
       const file = fileInput.files[0];
       if (!uploader || !file) return;
 
-      const path = `${track.id}/${Date.now()}-${sanitizeFileName(file.name)}`;
-      const bucket = cfg.SUPABASE_STORAGE_BUCKET || "music-files";
+      submitBtn.disabled = true;
+      progressWrap.hidden = false;
+      statusEl.textContent = "업로드 중... 0%";
 
-      const uploadRes = await sbClient.storage.from(bucket).upload(path, file, { upsert: false });
-      if (uploadRes.error) {
-        alert(`파일 업로드 실패: ${uploadRes.error.message}`);
-        return;
+      const stopProgress = startUploadProgress(statusEl, progressBar);
+
+      try {
+        const path = `${track.id}/${Date.now()}-${sanitizeFileName(file.name)}`;
+        const bucket = cfg.SUPABASE_STORAGE_BUCKET || "music-files";
+
+        const uploadRes = await sbClient.storage.from(bucket).upload(path, file, { upsert: false });
+        if (uploadRes.error) {
+          showToast(`파일 업로드 실패: ${uploadRes.error.message}`, "error");
+          stopProgress(false);
+          return;
+        }
+
+        const publicUrlRes = sbClient.storage.from(bucket).getPublicUrl(path);
+        const publicUrl = publicUrlRes.data.publicUrl;
+
+        const { error } = await sbClient.from("versions").insert({
+          track_id: track.id,
+          type,
+          uploader,
+          file_name: file.name,
+          file_path: path,
+          public_url: publicUrl,
+        });
+
+        if (error) {
+          showToast(`버전 저장 실패: ${error.message}`, "error");
+          stopProgress(false);
+          return;
+        }
+
+        stopProgress(true);
+        await loadData();
+        render();
+        showToast("버전 업로드 완료", "success");
+      } finally {
+        submitBtn.disabled = false;
       }
-
-      const publicUrlRes = sbClient.storage.from(bucket).getPublicUrl(path);
-      const publicUrl = publicUrlRes.data.publicUrl;
-
-      const { error } = await sbClient.from("versions").insert({
-        track_id: track.id,
-        type,
-        uploader,
-        file_name: file.name,
-        file_path: path,
-        public_url: publicUrl,
-      });
-
-      if (error) {
-        alert(`버전 저장 실패: ${error.message}`);
-        return;
-      }
-
-      await loadData();
-      render();
     });
 
     const feedbackForm = fragment.querySelector(".feedback-form");
@@ -303,12 +323,13 @@ function render() {
       }
 
       if (error) {
-        alert(`피드백 저장 실패: ${error.message}`);
+        showToast(`피드백 저장 실패: ${error.message}`, "error");
         return;
       }
 
       await loadData();
       render();
+      showToast("피드백이 등록되었습니다.", "success");
     });
 
     const lyricsForm = fragment.querySelector(".lyrics-form");
@@ -326,12 +347,13 @@ function render() {
         .update({ lyrics, lyrics_updated_by: editor, lyrics_updated_at: new Date().toISOString() })
         .eq("id", track.id);
       if (error) {
-        alert(`가사 업데이트 실패: ${error.message}`);
+        showToast(`가사 업데이트 실패: ${error.message}`, "error");
         return;
       }
 
       await loadData();
       render();
+      showToast("가사가 업데이트되었습니다.", "success");
     });
 
     const lyricsSection = lyricsForm.parentElement;
@@ -451,6 +473,39 @@ function bindPanelToggle(button, panel) {
     panel.hidden = !panel.hidden;
     syncState();
   });
+}
+
+
+function showToast(message, type = "info") {
+  if (!toastRoot) return;
+
+  const item = document.createElement("div");
+  item.className = `toast ${type}`;
+  item.textContent = message;
+  toastRoot.appendChild(item);
+
+  setTimeout(() => {
+    item.classList.add("hide");
+    setTimeout(() => item.remove(), 250);
+  }, 2200);
+}
+
+function startUploadProgress(statusEl, progressBar) {
+  let value = 0;
+  progressBar.style.width = "0%";
+
+  const timer = setInterval(() => {
+    value = Math.min(value + (value < 70 ? 9 : 3), 92);
+    progressBar.style.width = `${value}%`;
+    statusEl.textContent = `업로드 중... ${value}%`;
+  }, 220);
+
+  return (success) => {
+    clearInterval(timer);
+    const endValue = success ? 100 : value;
+    progressBar.style.width = `${endValue}%`;
+    statusEl.textContent = success ? "업로드 완료 100%" : "업로드 실패";
+  };
 }
 
 function groupBy(rows, key) {

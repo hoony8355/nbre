@@ -96,7 +96,11 @@
                 파일
                 <input class="audio-file" type="file" accept="audio/*" required />
               </label>
-              <button type="submit">업로드 & 최신 반영</button>
+              <button type="submit" class="upload-submit-btn">업로드 & 최신 반영</button>
+              <p class="upload-status meta" aria-live="polite"></p>
+              <div class="upload-progress" hidden>
+                <div class="upload-progress-bar"></div>
+              </div>
             </form>
           </section>
 
@@ -132,6 +136,8 @@
         </div>
       </article>
     </template>
+
+    <div id="toast-root" class="toast-root" aria-live="polite" aria-atomic="true"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.local.js"></script>
