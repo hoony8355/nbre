@@ -313,8 +313,8 @@ button.ghost {
 }
 
 .player-btn {
-  min-height: 38px;
-  min-width: 38px;
+  min-height: 42px;
+  min-width: 42px;
   border-radius: 999px;
   padding: 0;
   font-size: 1rem;
@@ -430,7 +430,11 @@ audio {
   }
 
   .bottom-player {
-    padding: 8px 10px;
+    padding: 10px 12px;
+  }
+
+  .player-controls {
+    gap: 12px;
   }
 
   input,
@@ -477,10 +481,10 @@ audio {
     font-size: 0.74rem;
   }
 
-  .player-controls .player-btn {
-    min-height: 34px;
-    min-width: 34px;
-    font-size: 0.9rem;
+   .player-controls .player-btn {
+    min-height: 46px;
+    min-width: 46px;
+    font-size: 1rem;
   }
 
   .player-meta strong {
