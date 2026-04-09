@@ -181,11 +181,17 @@ button.ghost {
   font-size: 0.78rem;
 }
 
-.action-row .mini-toggle.is-active {
-  background: linear-gradient(90deg, #4e2ca8, #7a3dff);
-  border: 1px solid #9f7bff;
+.action-row .mini-toggle[data-state="off"] {
+  opacity: 0.78;
+}
+
+.action-row .mini-toggle.is-active,
+.action-row .mini-toggle[data-state="on"] {
+  background: linear-gradient(90deg, #5a2ec4, #8d47ff);
+  border: 1px solid #c4a9ff;
   color: #ffffff;
-  box-shadow: 0 0 0 1px rgba(159, 123, 255, 0.25) inset;
+  box-shadow: 0 0 0 1px rgba(196, 169, 255, 0.35) inset, 0 4px 14px rgba(93, 47, 194, 0.45);
+  opacity: 1;
 }
 
 .panel {

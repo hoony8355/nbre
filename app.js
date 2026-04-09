@@ -376,11 +376,18 @@ function updatePlayerMeta() {
 
 function bindPanelToggle(button, panel) {
   if (!button || !panel) return;
-  button.classList.toggle("is-active", !panel.hidden);
 
+  const syncState = () => {
+    const active = !panel.hidden;
+    button.classList.toggle("is-active", active);
+    button.dataset.state = active ? "on" : "off";
+    button.setAttribute("aria-pressed", String(active));
+  };
+
+  syncState();
   button.addEventListener("click", () => {
     panel.hidden = !panel.hidden;
-    button.classList.toggle("is-active", !panel.hidden);
+    syncState();
   });
 }
 
