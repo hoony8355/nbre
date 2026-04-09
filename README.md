@@ -76,6 +76,16 @@ alter table public.tracks enable row level security;
 alter table public.versions enable row level security;
 alter table public.feedback enable row level security;
 
+drop policy if exists "public read tracks" on public.tracks;
+drop policy if exists "public write tracks" on public.tracks;
+drop policy if exists "public update tracks" on public.tracks;
+
+drop policy if exists "public read versions" on public.versions;
+drop policy if exists "public write versions" on public.versions;
+
+drop policy if exists "public read feedback" on public.feedback;
+drop policy if exists "public write feedback" on public.feedback;
+
 create policy "public read tracks" on public.tracks for select using (true);
 create policy "public write tracks" on public.tracks for insert with check (true);
 create policy "public update tracks" on public.tracks for update using (true) with check (true);
