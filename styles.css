@@ -271,7 +271,8 @@ button.ghost {
 
 .feedback-inline input,
 .feedback-inline button {
-  min-height: 36px;
+  min-height: 34px;
+  padding: 6px 8px;
 }
 
 .player-btn {
@@ -347,7 +348,25 @@ audio {
   }
 
   .feedback-inline {
-    grid-template-columns: 90px 1fr auto;
+    grid-template-columns: 72px 1fr 54px;
+    gap: 6px;
+  }
+
+  .feedback-inline input,
+  .feedback-inline button {
+    min-height: 30px;
+    padding: 4px 6px;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+
+  .feedback-list {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .feedback-list li {
+    padding-bottom: 6px;
   }
 
   .track-toggle {
@@ -429,5 +448,17 @@ audio {
 
   .player-meta strong {
     font-size: 0.92rem;
+  }
+
+  .feedback-inline {
+    grid-template-columns: 64px 1fr 48px;
+    gap: 4px;
+  }
+
+  .feedback-inline input,
+  .feedback-inline button {
+    min-height: 28px;
+    padding: 3px 5px;
+    font-size: 11px;
   }
 }
