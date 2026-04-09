@@ -25,7 +25,6 @@ const state = {
   tracks: [],
   versionsByTrack: new Map(),
   feedbackByTrack: new Map(),
-  latestLyricsByTrack: new Map(),
   currentTrackId: null,
 };
 
@@ -112,17 +111,13 @@ async function bootstrap() {
 }
 
 async function loadData() {
-  const [tracksRes, versionsRes, feedbackRes, lyricsRes] = await Promise.all([
+  const [tracksRes, versionsRes, feedbackRes] = await Promise.all([
     sbClient.from("tracks").select("*").order("created_at", { ascending: false }),
     sbClient.from("versions").select("*").order("created_at", { ascending: false }),
     sbClient.from("feedback").select("*").order("created_at", { ascending: false }),
-    sbClient
-      .from("lyrics_history")
-      .select("*")
-      .order("created_at", { ascending: false }),
   ]);
 
-  for (const res of [tracksRes, versionsRes, feedbackRes, lyricsRes]) {
+  for (const res of [tracksRes, versionsRes, feedbackRes]) {
     if (res.error) throw new Error(res.error.message);
   }
 
@@ -130,11 +125,6 @@ async function loadData() {
   state.versionsByTrack = groupBy(versionsRes.data || [], "track_id");
   state.feedbackByTrack = groupBy(feedbackRes.data || [], "track_id");
 
-  const latestLyrics = new Map();
-  for (const lyrics of lyricsRes.data || []) {
-    if (!latestLyrics.has(lyrics.track_id)) latestLyrics.set(lyrics.track_id, lyrics);
-  }
-  state.latestLyricsByTrack = latestLyrics;
 }
 
 function subscribeRealtime() {
@@ -143,7 +133,6 @@ function subscribeRealtime() {
     .on("postgres_changes", { event: "*", schema: "public", table: "tracks" }, syncNow)
     .on("postgres_changes", { event: "*", schema: "public", table: "versions" }, syncNow)
     .on("postgres_changes", { event: "*", schema: "public", table: "feedback" }, syncNow)
-    .on("postgres_changes", { event: "*", schema: "public", table: "lyrics_history" }, syncNow)
     .subscribe();
 
   async function syncNow() {
@@ -167,7 +156,6 @@ function render() {
   for (const track of state.tracks) {
     const versions = state.versionsByTrack.get(track.id) || [];
     const feedback = state.feedbackByTrack.get(track.id) || [];
-    const latestLyrics = state.latestLyricsByTrack.get(track.id);
 
     const fragment = template.content.cloneNode(true);
     const toggleBtn = fragment.querySelector(".track-toggle");
@@ -310,8 +298,8 @@ function render() {
     });
 
     const lyricsForm = fragment.querySelector(".lyrics-form");
-    lyricsForm.querySelector(".lyrics-text").value = latestLyrics?.lyrics || "";
-    lyricsForm.querySelector(".lyrics-editor").value = latestLyrics?.editor || "";
+    lyricsForm.querySelector(".lyrics-text").value = track.lyrics || "";
+    lyricsForm.querySelector(".lyrics-editor").value = "";
 
     lyricsForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -319,7 +307,10 @@ function render() {
       const lyrics = lyricsForm.querySelector(".lyrics-text").value;
       if (!editor) return;
 
-      const { error } = await sbClient.from("lyrics_history").insert({ track_id: track.id, editor, lyrics });
+      const { error } = await sbClient
+        .from("tracks")
+        .update({ lyrics, lyrics_updated_by: editor, lyrics_updated_at: new Date().toISOString() })
+        .eq("id", track.id);
       if (error) {
         alert(`가사 업데이트 실패: ${error.message}`);
         return;
@@ -332,7 +323,7 @@ function render() {
     const lyricsSection = lyricsForm.parentElement;
     lyricsSection.insertAdjacentHTML(
       "beforeend",
-      `<p class="meta">마지막 수정: ${escapeHtml(latestLyrics?.editor || "-")} · ${latestLyrics?.created_at ? formatDate(latestLyrics.created_at) : "-"}</p>`
+      `<p class="meta">마지막 수정: ${escapeHtml(track.lyrics_updated_by || "-")} · ${track.lyrics_updated_at ? formatDate(track.lyrics_updated_at) : "-"}</p>`
     );
 
     trackListEl.appendChild(fragment);

@@ -4,7 +4,7 @@
 이 버전은 **Supabase DB + Storage + Realtime** 기반이라 팀원 모두 같은 데이터를 공유합니다.
 
 ## 구현 범위
-- `tracks`, `versions`, `feedback`, `lyrics_history` 테이블 분리
+- `tracks`, `versions`, `feedback` 테이블 분리 (가사는 `tracks`에 최신본 유지)
 - 오디오 파일은 Supabase Storage 버킷 사용
 - Realtime 구독으로 곡/피드백/가사/버전 업데이트 즉시 반영
 - 프론트는 정적 파일(`index.html`, `app.js`)이라 GitHub Pages/Vercel 둘 다 배포 가능
@@ -26,6 +26,9 @@ create table if not exists public.tracks (
   title text not null,
   owner text not null,
   note text,
+  lyrics text default '',
+  lyrics_updated_by text,
+  lyrics_updated_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -49,18 +52,10 @@ create table if not exists public.feedback (
   created_at timestamptz not null default now()
 );
 
-create table if not exists public.lyrics_history (
-  id uuid primary key default gen_random_uuid(),
-  track_id uuid not null references public.tracks(id) on delete cascade,
-  editor text not null,
-  lyrics text not null,
-  created_at timestamptz not null default now()
-);
 
 alter publication supabase_realtime add table public.tracks;
 alter publication supabase_realtime add table public.versions;
 alter publication supabase_realtime add table public.feedback;
-alter publication supabase_realtime add table public.lyrics_history;
 ```
 
 
@@ -68,6 +63,9 @@ alter publication supabase_realtime add table public.lyrics_history;
 
 ```sql
 alter table public.feedback add column if not exists version_id uuid references public.versions(id) on delete set null;
+alter table public.tracks add column if not exists lyrics text default '';
+alter table public.tracks add column if not exists lyrics_updated_by text;
+alter table public.tracks add column if not exists lyrics_updated_at timestamptz;
 ```
 
 ### (C) RLS 정책 (간단 팀공유용)
@@ -77,7 +75,6 @@ alter table public.feedback add column if not exists version_id uuid references 
 alter table public.tracks enable row level security;
 alter table public.versions enable row level security;
 alter table public.feedback enable row level security;
-alter table public.lyrics_history enable row level security;
 
 create policy "public read tracks" on public.tracks for select using (true);
 create policy "public write tracks" on public.tracks for insert with check (true);
@@ -88,8 +85,6 @@ create policy "public write versions" on public.versions for insert with check (
 create policy "public read feedback" on public.feedback for select using (true);
 create policy "public write feedback" on public.feedback for insert with check (true);
 
-create policy "public read lyrics" on public.lyrics_history for select using (true);
-create policy "public write lyrics" on public.lyrics_history for insert with check (true);
 ```
 
 ## 2) 환경변수(키값) 설정 방식
