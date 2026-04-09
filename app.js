@@ -207,8 +207,8 @@ function render() {
       : `<p class="meta">등록된 MR이 없습니다.</p>`;
 
     const scopedFeedback = latestSong
-      ? feedback.filter((fb) => fb.version_id === latestSong.id)
-      : [];
+      ? feedback.filter((fb) => !fb.version_id || fb.version_id === latestSong.id)
+      : feedback;
 
     feedbackList.innerHTML = scopedFeedback.length
       ? scopedFeedback
@@ -217,7 +217,7 @@ function render() {
               `<li><strong>${escapeHtml(fb.author)}</strong> <span class="meta">${formatDate(fb.created_at)}</span><br/>${escapeHtml(fb.text)}</li>`
           )
           .join("")
-            : `<li class="meta">${latestSong ? "아직 피드백이 없습니다." : "최신 곡 버전이 있어야 피드백을 남길 수 있습니다."}</li>`;
+            : `<li class="meta">아직 피드백이 없습니다.</li>`;
 
     const uploadPanel = fragment.querySelector(".panel-upload");
     const mrPanel = fragment.querySelector(".panel-mr");
@@ -277,17 +277,24 @@ function render() {
       const text = feedbackForm.querySelector(".feedback-text").value.trim();
       if (!author || !text) return;
 
-      if (!latestSong) {
-        alert("최신 곡 버전 업로드 후 피드백을 남길 수 있습니다.");
-        return;
-      }
-
-      const { error } = await sbClient.from("feedback").insert({
+      const payload = {
         track_id: track.id,
-        version_id: latestSong.id,
         author,
         text,
-      });
+      };
+
+      if (latestSong?.id) {
+        payload.version_id = latestSong.id;
+      }
+
+      let { error } = await sbClient.from("feedback").insert(payload);
+
+      if (error && String(error.message).includes("version_id")) {
+        const retryPayload = { track_id: track.id, author, text };
+        const retryResult = await sbClient.from("feedback").insert(retryPayload);
+        error = retryResult.error;
+      }
+
       if (error) {
         alert(`피드백 저장 실패: ${error.message}`);
         return;
