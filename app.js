@@ -94,15 +94,20 @@ playerPlayBtn?.addEventListener("click", async () => {
 
 playerAudioEl?.addEventListener("play", () => {
   playerPlayBtn.textContent = ICON_PAUSE;
+  if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "playing";
 });
 
 playerAudioEl?.addEventListener("pause", () => {
   playerPlayBtn.textContent = ICON_PLAY;
+  if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "paused";
 });
 
 playerAudioEl?.addEventListener("ended", () => {
   moveTrack(1);
 });
+
+
+setupMediaSessionHandlers();
 
 async function bootstrap() {
   await loadData();
@@ -348,6 +353,7 @@ async function playTrack(trackId) {
 
   state.currentTrackId = trackId;
   playerAudioEl.src = target.latestSong.public_url;
+  updateMediaSessionMetadata(target.track, target.latestSong);
   await playerAudioEl.play();
   updatePlayerMeta();
 }
@@ -381,12 +387,53 @@ function updatePlayerMeta() {
     playerSubEl.textContent = "목록에서 곡을 선택하세요";
     playerPlayBtn.textContent = ICON_PLAY;
     playerPlayBtn.disabled = !hasQueue;
+    clearMediaSessionMetadata();
     return;
   }
 
   playerPlayBtn.disabled = false;
   playerTitleEl.textContent = current.track.title;
   playerSubEl.textContent = `최신 업로더: ${current.latestSong.uploader}`;
+  updateMediaSessionMetadata(current.track, current.latestSong);
+}
+
+
+function setupMediaSessionHandlers() {
+  if (!("mediaSession" in navigator)) return;
+
+  navigator.mediaSession.setActionHandler("play", () => {
+    playerAudioEl.play();
+  });
+
+  navigator.mediaSession.setActionHandler("pause", () => {
+    playerAudioEl.pause();
+  });
+
+  navigator.mediaSession.setActionHandler("previoustrack", () => {
+    moveTrack(-1);
+  });
+
+  navigator.mediaSession.setActionHandler("nexttrack", () => {
+    moveTrack(1);
+  });
+}
+
+function updateMediaSessionMetadata(track, latestSong) {
+  if (!("mediaSession" in navigator) || !track || !latestSong) return;
+
+  navigator.mediaSession.metadata = new MediaMetadata({
+    title: track.title,
+    artist: latestSong.uploader,
+    album: "NBRE Dashboard",
+  });
+
+  navigator.mediaSession.playbackState = playerAudioEl.paused ? "paused" : "playing";
+}
+
+function clearMediaSessionMetadata() {
+  if (!("mediaSession" in navigator)) return;
+  navigator.mediaSession.metadata = null;
+  navigator.mediaSession.playbackState = "none";
 }
 
 function bindPanelToggle(button, panel) {
