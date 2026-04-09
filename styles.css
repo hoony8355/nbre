@@ -33,7 +33,7 @@ body {
 .container {
   width: min(100%, 1000px);
   margin: 0 auto;
-  padding: 28px 16px 56px;
+  padding: 28px 16px 140px;
 }
 
 .hero h1 {
@@ -181,6 +181,33 @@ button.ghost {
   padding: 10px;
   background: #0f0c18;
 }
+
+.bottom-player {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  border-top: 1px solid var(--line);
+  background: rgba(10, 8, 18, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 10px 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.bottom-player audio {
+  width: 100%;
+}
+
+.player-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.player-controls button {
+  flex: 1;
+}
 .track-list {
   display: grid;
   gap: 10px;
@@ -276,7 +303,7 @@ audio {
 
 @media (max-width: 760px) {
   .container {
-    padding: 18px 12px 36px;
+    padding: 18px 12px 150px;
   }
 
   .card {
@@ -318,7 +345,7 @@ audio {
 
 @media (max-width: 480px) {
   .container {
-    padding: 14px 10px 28px;
+    padding: 14px 10px 150px;
   }
 
   .hero h1 {

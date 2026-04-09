@@ -6,6 +6,12 @@ const openAddTrackBtn = document.getElementById("open-add-track");
 const closeAddTrackBtn = document.getElementById("close-add-track");
 const addTrackPanel = document.getElementById("add-track-panel");
 const template = document.getElementById("track-template");
+const playerAudioEl = document.getElementById("global-audio");
+const playerTitleEl = document.getElementById("player-track-title");
+const playerSubEl = document.getElementById("player-track-sub");
+const playerPrevBtn = document.getElementById("player-prev");
+const playerPlayBtn = document.getElementById("player-play");
+const playerNextBtn = document.getElementById("player-next");
 
 const hasSupabaseConfig = Boolean(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY);
 const sbClient = hasSupabaseConfig
@@ -17,6 +23,7 @@ const state = {
   versionsByTrack: new Map(),
   feedbackByTrack: new Map(),
   latestLyricsByTrack: new Map(),
+  currentTrackId: null,
 };
 
 if (!sbClient) {
@@ -61,6 +68,38 @@ addTrackForm.addEventListener("submit", async (event) => {
   addTrackPanel.hidden = true;
   await loadData();
   render();
+});
+
+
+playerPrevBtn?.addEventListener("click", () => moveTrack(-1));
+playerNextBtn?.addEventListener("click", () => moveTrack(1));
+playerPlayBtn?.addEventListener("click", async () => {
+  if (!playerAudioEl.src) {
+    const queue = getLatestPlayableTracks();
+    if (queue.length === 0) return;
+    await playTrack(queue[0].track.id);
+    return;
+  }
+
+  if (playerAudioEl.paused) {
+    await playerAudioEl.play();
+    playerPlayBtn.textContent = "일시정지";
+  } else {
+    playerAudioEl.pause();
+    playerPlayBtn.textContent = "재생";
+  }
+});
+
+playerAudioEl?.addEventListener("play", () => {
+  playerPlayBtn.textContent = "일시정지";
+});
+
+playerAudioEl?.addEventListener("pause", () => {
+  playerPlayBtn.textContent = "재생";
+});
+
+playerAudioEl?.addEventListener("ended", () => {
+  moveTrack(1);
 });
 
 async function bootstrap() {
@@ -151,7 +190,8 @@ function render() {
     latestBox.innerHTML = latestSong
       ? `
       <p><span class="type-tag">최신 곡 버전</span> ${escapeHtml(latestSong.uploader)} · ${formatDate(latestSong.created_at)}</p>
-      <audio controls src="${escapeHtml(latestSong.public_url)}"></audio>`
+      <audio controls src="${escapeHtml(latestSong.public_url)}"></audio>
+      <button type="button" class="mini-toggle play-track-btn">이 곡 재생</button>`
       : `<p class="meta">아직 업로드된 곡 버전이 없습니다.</p>`;
 
     if (track.note) {
@@ -175,24 +215,29 @@ function render() {
           .join("")
       : `<p class="meta">등록된 MR이 없습니다.</p>`;
 
-    feedbackList.innerHTML = feedback.length
-      ? feedback
+    const scopedFeedback = latestSong
+      ? feedback.filter((fb) => fb.version_id === latestSong.id)
+      : [];
+
+    feedbackList.innerHTML = scopedFeedback.length
+      ? scopedFeedback
           .map(
             (fb) =>
               `<li><strong>${escapeHtml(fb.author)}</strong> <span class="meta">${formatDate(fb.created_at)}</span><br/>${escapeHtml(fb.text)}</li>`
           )
           .join("")
-      : `<li class="meta">아직 피드백이 없습니다.</li>`;
+            : `<li class="meta">${latestSong ? "아직 피드백이 없습니다." : "최신 곡 버전이 있어야 피드백을 남길 수 있습니다."}</li>`;
 
     const uploadPanel = fragment.querySelector(".panel-upload");
     const mrPanel = fragment.querySelector(".panel-mr");
     const lyricsPanel = fragment.querySelector(".panel-lyrics");
-    const feedbackPanel = fragment.querySelector(".panel-feedback");
 
     bindPanelToggle(fragment.querySelector(".action-upload"), uploadPanel);
     bindPanelToggle(fragment.querySelector(".action-mr"), mrPanel);
     bindPanelToggle(fragment.querySelector(".action-lyrics"), lyricsPanel);
-    bindPanelToggle(fragment.querySelector(".action-feedback"), feedbackPanel);
+
+    const playTrackBtn = fragment.querySelector(".play-track-btn");
+    playTrackBtn?.addEventListener("click", () => playTrack(track.id));
 
     const uploadForm = fragment.querySelector(".upload-form");
 
@@ -241,7 +286,17 @@ function render() {
       const text = feedbackForm.querySelector(".feedback-text").value.trim();
       if (!author || !text) return;
 
-      const { error } = await sbClient.from("feedback").insert({ track_id: track.id, author, text });
+      if (!latestSong) {
+        alert("최신 곡 버전 업로드 후 피드백을 남길 수 있습니다.");
+        return;
+      }
+
+      const { error } = await sbClient.from("feedback").insert({
+        track_id: track.id,
+        version_id: latestSong.id,
+        author,
+        text,
+      });
       if (error) {
         alert(`피드백 저장 실패: ${error.message}`);
         return;
@@ -279,8 +334,50 @@ function render() {
 
     trackListEl.appendChild(fragment);
   }
+
+  updatePlayerMeta();
 }
 
+async function playTrack(trackId) {
+  const queue = getLatestPlayableTracks();
+  const target = queue.find((item) => item.track.id === trackId);
+  if (!target) return;
+
+  state.currentTrackId = trackId;
+  playerAudioEl.src = target.latestSong.public_url;
+  await playerAudioEl.play();
+  updatePlayerMeta();
+}
+
+function moveTrack(direction) {
+  const queue = getLatestPlayableTracks();
+  if (queue.length === 0) return;
+
+  const currentIndex = queue.findIndex((item) => item.track.id === state.currentTrackId);
+  const baseIndex = currentIndex >= 0 ? currentIndex : 0;
+  const nextIndex = (baseIndex + direction + queue.length) % queue.length;
+  playTrack(queue[nextIndex].track.id);
+}
+
+function getLatestPlayableTracks() {
+  return state.tracks
+    .map((track) => ({ track, latestSong: (state.versionsByTrack.get(track.id) || []).find((v) => v.type === "song") }))
+    .filter((entry) => Boolean(entry.latestSong));
+}
+
+function updatePlayerMeta() {
+  const queue = getLatestPlayableTracks();
+  const current = queue.find((item) => item.track.id === state.currentTrackId);
+
+  if (!current) {
+    playerTitleEl.textContent = "재생 대기 중";
+    playerSubEl.textContent = "목록에서 곡을 선택하세요";
+    return;
+  }
+
+  playerTitleEl.textContent = current.track.title;
+  playerSubEl.textContent = `최신 업로더: ${current.latestSong.uploader}`;
+}
 
 function bindPanelToggle(button, panel) {
   if (!button || !panel) return;

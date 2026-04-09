@@ -46,6 +46,20 @@
       </section>
     </main>
 
+    <footer class="bottom-player" id="bottom-player">
+      <div class="player-meta">
+        <strong id="player-track-title">재생 대기 중</strong>
+        <span id="player-track-sub" class="meta">목록에서 곡을 선택하세요</span>
+      </div>
+      <audio id="global-audio" controls></audio>
+      <div class="player-controls">
+        <button id="player-prev" class="ghost mini-toggle" type="button">이전곡</button>
+        <button id="player-play" class="mini-toggle" type="button">재생</button>
+        <button id="player-next" class="ghost mini-toggle" type="button">다음곡</button>
+      </div>
+    </footer>
+
+
     <template id="track-template">
       <article class="track-item">
         <button class="track-toggle" type="button"></button>
@@ -59,8 +73,7 @@
             <button type="button" class="ghost mini-toggle action-lyrics">가사 보기</button>
             <button type="button" class="ghost mini-toggle action-mr">MR 보기</button>
             <button type="button" class="ghost mini-toggle action-upload">곡 업데이트</button>
-            <button type="button" class="ghost mini-toggle action-feedback">피드백</button>
-          </div>
+                      </div>
 
           <section class="panel panel-upload" hidden>
             <div class="section-head">
@@ -91,7 +104,7 @@
             <div class="mr-list"></div>
           </section>
 
-          <section class="panel panel-feedback" hidden>
+          <section class="panel panel-feedback">
             <h3>피드백</h3>
             <form class="feedback-form grid-form mini">
               <label>

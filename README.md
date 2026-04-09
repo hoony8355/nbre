@@ -43,6 +43,7 @@ create table if not exists public.versions (
 create table if not exists public.feedback (
   id uuid primary key default gen_random_uuid(),
   track_id uuid not null references public.tracks(id) on delete cascade,
+  version_id uuid references public.versions(id) on delete set null,
   author text not null,
   text text not null,
   created_at timestamptz not null default now()
@@ -60,6 +61,13 @@ alter publication supabase_realtime add table public.tracks;
 alter publication supabase_realtime add table public.versions;
 alter publication supabase_realtime add table public.feedback;
 alter publication supabase_realtime add table public.lyrics_history;
+```
+
+
+기존 테이블을 이미 만들었다면 아래 마이그레이션도 실행하세요.
+
+```sql
+alter table public.feedback add column if not exists version_id uuid references public.versions(id) on delete set null;
 ```
 
 ### (C) RLS 정책 (간단 팀공유용)
