@@ -53,9 +53,9 @@
       </div>
       <audio id="global-audio" controls></audio>
       <div class="player-controls">
-        <button id="player-prev" class="ghost mini-toggle" type="button">이전</button>
-        <button id="player-play" class="mini-toggle" type="button">재생</button>
-        <button id="player-next" class="ghost mini-toggle" type="button">다음</button>
+        <button id="player-prev" class="ghost player-btn" type="button" aria-label="이전 곡">⏮</button>
+        <button id="player-play" class="player-btn" type="button" aria-label="재생/일시정지">▶</button>
+        <button id="player-next" class="ghost player-btn" type="button" aria-label="다음 곡">⏭</button>
       </div>
     </footer>
 
@@ -106,16 +106,10 @@
 
           <section class="panel panel-feedback">
             <h3>피드백</h3>
-            <form class="feedback-form grid-form mini">
-              <label>
-                작성자
-                <input class="feedback-author" type="text" required />
-              </label>
-              <label class="full">
-                내용
-                <textarea class="feedback-text" rows="2" required></textarea>
-              </label>
-              <button type="submit">피드백 등록</button>
+            <form class="feedback-form feedback-inline">
+              <input class="feedback-author" type="text" placeholder="이름" required />
+              <input class="feedback-text" type="text" placeholder="피드백 한줄 입력" required />
+              <button type="submit">등록</button>
             </form>
             <ul class="feedback-list"></ul>
           </section>

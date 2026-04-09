@@ -13,6 +13,9 @@ const playerPrevBtn = document.getElementById("player-prev");
 const playerPlayBtn = document.getElementById("player-play");
 const playerNextBtn = document.getElementById("player-next");
 
+const ICON_PLAY = "▶";
+const ICON_PAUSE = "❚❚";
+
 const hasSupabaseConfig = Boolean(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY);
 const sbClient = hasSupabaseConfig
   ? window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY)
@@ -83,19 +86,19 @@ playerPlayBtn?.addEventListener("click", async () => {
 
   if (playerAudioEl.paused) {
     await playerAudioEl.play();
-    playerPlayBtn.textContent = "일시정지";
+    playerPlayBtn.textContent = ICON_PAUSE;
   } else {
     playerAudioEl.pause();
-    playerPlayBtn.textContent = "재생";
+    playerPlayBtn.textContent = ICON_PLAY;
   }
 });
 
 playerAudioEl?.addEventListener("play", () => {
-  playerPlayBtn.textContent = "일시정지";
+  playerPlayBtn.textContent = ICON_PAUSE;
 });
 
 playerAudioEl?.addEventListener("pause", () => {
-  playerPlayBtn.textContent = "재생";
+  playerPlayBtn.textContent = ICON_PLAY;
 });
 
 playerAudioEl?.addEventListener("ended", () => {
@@ -372,6 +375,7 @@ function updatePlayerMeta() {
   if (!current) {
     playerTitleEl.textContent = "재생 대기 중";
     playerSubEl.textContent = "목록에서 곡을 선택하세요";
+    playerPlayBtn.textContent = ICON_PLAY;
     return;
   }
 

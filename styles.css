@@ -208,14 +208,12 @@ button.ghost {
 
 .player-controls {
   display: flex;
-  gap: 8px;
+  justify-content: center;
+  gap: 10px;
 }
 
 .player-controls button {
-  flex: 1;
-  min-height: 36px;
-  padding: 6px 8px;
-  font-size: 0.82rem;
+  flex: 0 0 auto;
 }
 .track-list {
   display: grid;
@@ -262,6 +260,29 @@ button.ghost {
   border-radius: 10px;
   padding: 10px;
   background: #0f0c18;
+}
+
+.feedback-inline {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.feedback-inline input,
+.feedback-inline button {
+  min-height: 36px;
+}
+
+.player-btn {
+  min-height: 38px;
+  min-width: 38px;
+  border-radius: 999px;
+  padding: 0;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .feedback-list {
@@ -323,6 +344,10 @@ audio {
   .grid-form,
   .grid-form.mini {
     grid-template-columns: 1fr;
+  }
+
+  .feedback-inline {
+    grid-template-columns: 90px 1fr auto;
   }
 
   .track-toggle {
@@ -389,12 +414,17 @@ audio {
     width: 100%;
   }
 
-  .action-row .mini-toggle,
-  .player-controls button {
+  .action-row .mini-toggle {
     width: auto;
     min-height: 32px;
     padding: 4px 6px;
     font-size: 0.74rem;
+  }
+
+  .player-controls .player-btn {
+    min-height: 34px;
+    min-width: 34px;
+    font-size: 0.9rem;
   }
 
   .player-meta strong {
