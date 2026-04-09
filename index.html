@@ -62,7 +62,7 @@
 
     <template id="track-template">
       <article class="track-item">
-        <button class="track-toggle" type="button"></button>
+        <button class="track-toggle" type="button" aria-expanded="false"></button>
         <div class="track-body hidden">
           <section>
             <h3>최신 버전</h3>
@@ -73,7 +73,8 @@
             <button type="button" class="ghost mini-toggle action-lyrics">가사</button>
             <button type="button" class="ghost mini-toggle action-mr">MR</button>
             <button type="button" class="ghost mini-toggle action-upload">업로드</button>
-                      </div>
+          </div>
+          <p class="action-hint">필요한 항목만 열어서 작업하세요.</p>
 
           <section class="panel panel-upload" hidden>
             <div class="section-head">

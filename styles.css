@@ -121,6 +121,19 @@ button {
   min-height: 42px;
 }
 
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #9f7bff;
+  outline-offset: 1px;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 button.ghost {
   background: transparent;
   border: 1px solid var(--line);
@@ -175,6 +188,12 @@ button.ghost {
   gap: 8px;
 }
 
+.action-hint {
+  margin: 0;
+  font-size: 0.76rem;
+  color: #9f93bf;
+}
+
 .action-row .mini-toggle {
   min-height: 34px;
   padding: 4px 8px;
@@ -227,6 +246,11 @@ button.ghost {
 
 .player-controls button {
   flex: 0 0 auto;
+}
+
+.player-controls button:disabled {
+  opacity: 0.35;
+  box-shadow: none;
 }
 .track-list {
   display: grid;

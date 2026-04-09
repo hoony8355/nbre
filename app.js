@@ -174,7 +174,9 @@ function render() {
 
     toggleBtn.addEventListener("click", () => {
       body.classList.toggle("hidden");
-      toggleBtn.querySelector("span:last-child").textContent = body.classList.contains("hidden") ? "열기 ▼" : "닫기 ▲";
+      const expanded = !body.classList.contains("hidden");
+      toggleBtn.setAttribute("aria-expanded", String(expanded));
+      toggleBtn.querySelector("span:last-child").textContent = expanded ? "닫기 ▲" : "열기 ▼";
     });
 
     const latestSong = versions.find((item) => item.type === "song");
@@ -370,13 +372,19 @@ function updatePlayerMeta() {
   const queue = getLatestPlayableTracks();
   const current = queue.find((item) => item.track.id === state.currentTrackId);
 
+  const hasQueue = queue.length > 0;
+  playerPrevBtn.disabled = !hasQueue;
+  playerNextBtn.disabled = !hasQueue;
+
   if (!current) {
     playerTitleEl.textContent = "재생 대기 중";
     playerSubEl.textContent = "목록에서 곡을 선택하세요";
     playerPlayBtn.textContent = ICON_PLAY;
+    playerPlayBtn.disabled = !hasQueue;
     return;
   }
 
+  playerPlayBtn.disabled = false;
   playerTitleEl.textContent = current.track.title;
   playerSubEl.textContent = `최신 업로더: ${current.latestSong.uploader}`;
 }
