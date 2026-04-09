@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NBRE Music Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="background-glow" aria-hidden="true"></div>
+    <main class="container">
+      <header class="hero">
+        <p class="badge">HIPHOP TEAM WORKSPACE</p>
+        <h1>NBRE 음악 스케치 대시보드</h1>
+        <p>곡을 눌러 최신 버전만 바로 듣고, 필요할 때만 가사/MR/업데이트를 열어서 작업하세요.</p>
+        <p id="connection-status" class="meta">연결 확인 중...</p>
+      </header>
+
+      <section class="card list-card">
+        <h2>곡 목록</h2>
+        <div id="track-list" class="track-list"></div>
+
+        <button id="open-add-track" class="fab" type="button">+ 곡 추가</button>
+
+        <div id="add-track-panel" class="add-track-panel" hidden>
+          <div class="section-head">
+            <h3>곡 등록</h3>
+            <button id="close-add-track" class="ghost mini-toggle" type="button">닫기</button>
+          </div>
+          <form id="add-track-form" class="grid-form">
+            <label>
+              곡 제목
+              <input id="track-title" type="text" placeholder="예: Midnight Draft" required />
+            </label>
+            <label>
+              생성자
+              <input id="track-owner" type="text" placeholder="예: Min" required />
+            </label>
+            <label class="full">
+              메모
+              <textarea id="track-note" rows="2" placeholder="첫 아이디어 메모"></textarea>
+            </label>
+            <button type="submit">곡 생성</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bottom-player" id="bottom-player">
+      <div class="player-meta">
+        <strong id="player-track-title">재생 대기 중</strong>
+        <span id="player-track-sub" class="meta">목록에서 곡을 선택하세요</span>
+      </div>
+      <audio id="global-audio" controls></audio>
+      <div class="player-controls">
+        <button id="player-prev" class="ghost mini-toggle" type="button">이전</button>
+        <button id="player-play" class="mini-toggle" type="button">재생</button>
+        <button id="player-next" class="ghost mini-toggle" type="button">다음</button>
+      </div>
+    </footer>
+
+
+    <template id="track-template">
+      <article class="track-item">
+        <button class="track-toggle" type="button"></button>
+        <div class="track-body hidden">
+          <section>
+            <h3>최신 버전</h3>
+            <div class="latest-box"></div>
+          </section>
+
+          <div class="action-row">
+            <button type="button" class="ghost mini-toggle action-lyrics">가사</button>
+            <button type="button" class="ghost mini-toggle action-mr">MR</button>
+            <button type="button" class="ghost mini-toggle action-upload">업로드</button>
+                      </div>
+
+          <section class="panel panel-upload" hidden>
+            <div class="section-head">
+              <h3>업로드 (곡 / MR)</h3>
+            </div>
+            <form class="upload-form grid-form mini">
+              <label>
+                업로더
+                <input class="uploader" type="text" placeholder="이름" required />
+              </label>
+              <label>
+                타입
+                <select class="version-type">
+                  <option value="song">곡 (보컬/스케치)</option>
+                  <option value="mr">MR (반주)</option>
+                </select>
+              </label>
+              <label class="full">
+                파일
+                <input class="audio-file" type="file" accept="audio/*" required />
+              </label>
+              <button type="submit">업로드 & 최신 반영</button>
+            </form>
+          </section>
+
+          <section class="panel panel-mr" hidden>
+            <h3>MR 목록</h3>
+            <div class="mr-list"></div>
+          </section>
+
+          <section class="panel panel-feedback">
+            <h3>피드백</h3>
+            <form class="feedback-form grid-form mini">
+              <label>
+                작성자
+                <input class="feedback-author" type="text" required />
+              </label>
+              <label class="full">
+                내용
+                <textarea class="feedback-text" rows="2" required></textarea>
+              </label>
+              <button type="submit">피드백 등록</button>
+            </form>
+            <ul class="feedback-list"></ul>
+          </section>
+
+          <section class="panel panel-lyrics" hidden>
+            <h3>가사 (최신본)</h3>
+            <form class="lyrics-form">
+              <label>
+                수정자
+                <input class="lyrics-editor" type="text" required />
+              </label>
+              <label>
+                가사
+                <textarea class="lyrics-text" rows="7" placeholder="가사를 입력하세요"></textarea>
+              </label>
+              <button type="submit">가사 업데이트</button>
+            </form>
+          </section>
+        </div>
+      </article>
+    </template>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.local.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

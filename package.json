@@ -1,0 +1,8 @@
+{
+  "name": "nbre-music-dashboard",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "node scripts/generate-config.mjs"
+  }
+}
