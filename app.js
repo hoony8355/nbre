@@ -14,6 +14,9 @@ const playerPlayBtn = document.getElementById("player-play");
 const playerNextBtn = document.getElementById("player-next");
 const toastRoot = document.getElementById("toast-root");
 const themeSelect = document.getElementById("theme-select");
+const settingsToggleBtn = document.getElementById("settings-toggle");
+const settingsCloseBtn = document.getElementById("settings-close");
+const settingsPanel = document.getElementById("settings-panel");
 const THEME_KEY = "nbre-theme";
 
 const ICON_PLAY = "▶";
@@ -469,8 +472,19 @@ function initThemeSelector() {
   if (!themeSelect) return;
 
   const saved = localStorage.getItem(THEME_KEY) || "neon-purple";
-  document.body.dataset.theme = saved;
-  themeSelect.value = saved;
+  const available = Array.from(themeSelect.options).map((opt) => opt.value);
+  const initial = available.includes(saved) ? saved : "neon-purple";
+
+  document.body.dataset.theme = initial;
+  themeSelect.value = initial;
+
+  settingsToggleBtn?.addEventListener("click", () => {
+    settingsPanel.hidden = !settingsPanel.hidden;
+  });
+
+  settingsCloseBtn?.addEventListener("click", () => {
+    settingsPanel.hidden = true;
+  });
 
   themeSelect.addEventListener("change", () => {
     const selected = themeSelect.value;

@@ -30,24 +30,41 @@ body[data-theme="sunset-hiphop"] {
   --line: #4a2c22;
 }
 
-body[data-theme="mint-night"] {
-  --bg: #071111;
-  --panel: #102222;
-  --text: #eafff9;
-  --muted: #a4c9bf;
-  --primary: #00c2a8;
-  --accent: #77f8c4;
-  --line: #1f4640;
+body[data-theme="minimal-light"] {
+  --bg: #f5f6f8;
+  --panel: #ffffff;
+  --text: #141414;
+  --muted: #5f6470;
+  --primary: #4a67ff;
+  --accent: #5ac8fa;
+  --line: #dfe3ea;
 }
 
-body[data-theme="mono-gold"] {
-  --bg: #0e0e0e;
-  --panel: #1b1b1b;
-  --text: #f7f2de;
-  --muted: #c6bc98;
-  --primary: #b08d57;
-  --accent: #f2d16b;
-  --line: #3a3326;
+body[data-theme="mono-bw"] {
+  --bg: #0a0a0a;
+  --panel: #151515;
+  --text: #f0f0f0;
+  --muted: #a2a2a2;
+  --primary: #ffffff;
+  --accent: #d8d8d8;
+  --line: #2b2b2b;
+}
+
+body[data-theme="minimal-light"] {
+  background: #f3f5f8;
+}
+
+body[data-theme="mono-bw"] {
+  background: radial-gradient(circle at top right, #1d1d1d 0%, #050505 52%);
+}
+
+body[data-theme="minimal-light"] .background-glow,
+body[data-theme="mono-bw"] .background-glow {
+  display: none;
+}
+
+body[data-theme="minimal-light"] .badge {
+  border-color: #8ca0ff;
 }
 * {
   box-sizing: border-box;
@@ -77,6 +94,31 @@ body {
   padding: 28px 16px 140px;
 }
 
+.settings-toggle {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 30;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  padding: 0;
+  font-size: 1.1rem;
+}
+
+.settings-panel {
+  position: fixed;
+  top: 64px;
+  right: 14px;
+  z-index: 30;
+  width: min(88vw, 300px);
+  background: linear-gradient(180deg, var(--panel), #0f0c18);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
 .hero h1 {
   margin: 8px 0;
   font-size: clamp(1.6rem, 4vw, 2.5rem);
@@ -104,9 +146,6 @@ body {
   backdrop-filter: blur(4px);
 }
 
-.theme-card select {
-  max-width: 320px;
-}
 
 h2 {
   margin: 0 0 14px;
@@ -481,6 +520,17 @@ audio {
 }
 
 @media (max-width: 760px) {
+  .settings-toggle {
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .settings-panel {
+    top: 56px;
+    right: 10px;
+  }
   .container {
     padding: 18px 12px 150px;
   }

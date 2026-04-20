@@ -15,21 +15,23 @@
         <p>곡을 눌러 최신 버전만 바로 듣고, 필요할 때만 가사/MR/업데이트를 열어서 작업하세요.</p>
         <p id="connection-status" class="meta">연결 확인 중...</p>
       </header>
-      <section class="card theme-card">
+      <button id="settings-toggle" class="settings-toggle" type="button" aria-label="테마 설정 열기">⚙</button>
+      <aside id="settings-panel" class="settings-panel" hidden>
         <div class="section-head">
-          <h2>컬러 테마 선택</h2>
-          <span class="meta">담당자가 바로 비교 가능</span>
+          <h3>컨셉/테마</h3>
+          <button id="settings-close" class="ghost mini-toggle" type="button">닫기</button>
         </div>
         <label>
           테마
           <select id="theme-select">
-            <option value="neon-purple">Neon Purple (기본)</option>
+            <option value="neon-purple">Neon Studio</option>
+            <option value="minimal-light">Minimal Light</option>
+            <option value="mono-bw">Mono B/W</option>
             <option value="sunset-hiphop">Sunset Hiphop</option>
-            <option value="mint-night">Mint Night</option>
-            <option value="mono-gold">Mono Gold</option>
           </select>
         </label>
-      </section>
+      </aside>
+
 
       <section class="card list-card">
         <h2>곡 목록</h2>
