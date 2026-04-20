@@ -160,7 +160,9 @@ function render() {
     return;
   }
 
-  for (const track of state.tracks) {
+  const sortedTracks = [...state.tracks].sort((a, b) => trackLastUpdatedAt(b) - trackLastUpdatedAt(a));
+
+  for (const track of sortedTracks) {
     const versions = state.versionsByTrack.get(track.id) || [];
     const feedback = state.feedbackByTrack.get(track.id) || [];
 
@@ -173,8 +175,8 @@ function render() {
 
     toggleBtn.innerHTML = `
       <span>
-        <strong>${escapeHtml(track.title)}</strong>
-        <span class="meta"> · by ${escapeHtml(track.owner)} · ${formatDate(track.created_at)}</span>
+        <strong>${escapeHtml(track.title)}</strong> ${isRecentWithinDays(trackLastUpdatedAt(track), 7) ? `<span class="new-badge">NEW</span>` : ""}
+        <span class="meta"> · by ${escapeHtml(track.owner)} · ${formatDate(trackLastUpdatedAt(track))}</span>
       </span>
       <span>열기 ▼</span>
     `;
@@ -456,6 +458,30 @@ function clearMediaSessionMetadata() {
   if (!("mediaSession" in navigator)) return;
   navigator.mediaSession.metadata = null;
   navigator.mediaSession.playbackState = "none";
+}
+
+
+function trackLastUpdatedAt(track) {
+  const versions = state.versionsByTrack.get(track.id) || [];
+  const feedback = state.feedbackByTrack.get(track.id) || [];
+
+  const candidateTimes = [
+    track.created_at,
+    track.lyrics_updated_at,
+    ...versions.map((v) => v.created_at),
+    ...feedback.map((f) => f.created_at),
+  ]
+    .filter(Boolean)
+    .map((value) => new Date(value).getTime())
+    .filter((value) => Number.isFinite(value));
+
+  return candidateTimes.length ? Math.max(...candidateTimes) : 0;
+}
+
+function isRecentWithinDays(timestamp, days) {
+  if (!timestamp) return false;
+  const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+  return timestamp >= cutoff;
 }
 
 function bindPanelToggle(button, panel) {

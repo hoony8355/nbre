@@ -344,6 +344,18 @@ button.ghost {
   font-size: 0.85rem;
 }
 
+.new-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+  background: linear-gradient(90deg, #ff6c9f, #ff9b5e);
+  color: #fff;
+  vertical-align: middle;
+}
+
 .latest-box,
 .version-list,
 .feedback-list {
