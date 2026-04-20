@@ -8,6 +8,47 @@
   --line: #30284c;
 }
 
+
+
+body[data-theme="neon-purple"] {
+  --bg: #08070f;
+  --panel: #161126;
+  --text: #f1efff;
+  --muted: #b6aacd;
+  --primary: #ad49ff;
+  --accent: #00d4ff;
+  --line: #30284c;
+}
+
+body[data-theme="sunset-hiphop"] {
+  --bg: #130b08;
+  --panel: #241411;
+  --text: #fff0ea;
+  --muted: #d6b8a9;
+  --primary: #ff6f3d;
+  --accent: #ffc857;
+  --line: #4a2c22;
+}
+
+body[data-theme="mint-night"] {
+  --bg: #071111;
+  --panel: #102222;
+  --text: #eafff9;
+  --muted: #a4c9bf;
+  --primary: #00c2a8;
+  --accent: #77f8c4;
+  --line: #1f4640;
+}
+
+body[data-theme="mono-gold"] {
+  --bg: #0e0e0e;
+  --panel: #1b1b1b;
+  --text: #f7f2de;
+  --muted: #c6bc98;
+  --primary: #b08d57;
+  --accent: #f2d16b;
+  --line: #3a3326;
+}
 * {
   box-sizing: border-box;
 }
@@ -55,12 +96,16 @@ body {
 }
 
 .card {
-  background: linear-gradient(180deg, rgba(22, 17, 38, 0.95), rgba(18, 14, 30, 0.95));
+  background: linear-gradient(180deg, var(--panel), #0f0c18);
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 18px;
   margin-top: 16px;
   backdrop-filter: blur(4px);
+}
+
+.theme-card select {
+  max-width: 320px;
 }
 
 h2 {

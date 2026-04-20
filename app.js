@@ -13,6 +13,8 @@ const playerPrevBtn = document.getElementById("player-prev");
 const playerPlayBtn = document.getElementById("player-play");
 const playerNextBtn = document.getElementById("player-next");
 const toastRoot = document.getElementById("toast-root");
+const themeSelect = document.getElementById("theme-select");
+const THEME_KEY = "nbre-theme";
 
 const ICON_PLAY = "▶";
 const ICON_PAUSE = "❚❚";
@@ -110,6 +112,7 @@ playerAudioEl?.addEventListener("ended", () => {
 
 
 setupMediaSessionHandlers();
+initThemeSelector();
 
 async function bootstrap() {
   await loadData();
@@ -460,6 +463,22 @@ function clearMediaSessionMetadata() {
   navigator.mediaSession.playbackState = "none";
 }
 
+
+
+function initThemeSelector() {
+  if (!themeSelect) return;
+
+  const saved = localStorage.getItem(THEME_KEY) || "neon-purple";
+  document.body.dataset.theme = saved;
+  themeSelect.value = saved;
+
+  themeSelect.addEventListener("change", () => {
+    const selected = themeSelect.value;
+    document.body.dataset.theme = selected;
+    localStorage.setItem(THEME_KEY, selected);
+    showToast(`테마 변경: ${themeSelect.options[themeSelect.selectedIndex].text}`, "info");
+  });
+}
 
 function trackLastUpdatedAt(track) {
   const versions = state.versionsByTrack.get(track.id) || [];
