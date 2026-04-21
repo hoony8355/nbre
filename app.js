@@ -12,6 +12,10 @@ const playerSubEl = document.getElementById("player-track-sub");
 const playerPrevBtn = document.getElementById("player-prev");
 const playerPlayBtn = document.getElementById("player-play");
 const playerNextBtn = document.getElementById("player-next");
+const playerRepeatBtn = document.getElementById("player-repeat");
+const playerProgressEl = document.getElementById("player-progress");
+const playerCurrentEl = document.getElementById("player-current");
+const playerDurationEl = document.getElementById("player-duration");
 const toastRoot = document.getElementById("toast-root");
 const themeSelect = document.getElementById("theme-select");
 const settingsToggleBtn = document.getElementById("settings-toggle");
@@ -32,6 +36,7 @@ const state = {
   versionsByTrack: new Map(),
   feedbackByTrack: new Map(),
   currentTrackId: null,
+  repeatOne: false,
 };
 
 if (!sbClient) {
@@ -109,7 +114,28 @@ playerAudioEl?.addEventListener("pause", () => {
   if ("mediaSession" in navigator) navigator.mediaSession.playbackState = "paused";
 });
 
+
+playerRepeatBtn?.addEventListener("click", () => {
+  state.repeatOne = !state.repeatOne;
+  playerRepeatBtn.classList.toggle("is-active", state.repeatOne);
+  showToast(state.repeatOne ? "한 곡 반복 ON" : "한 곡 반복 OFF", "info");
+});
+
+playerProgressEl?.addEventListener("input", () => {
+  if (!playerAudioEl.duration) return;
+  const ratio = Number(playerProgressEl.value) / 100;
+  playerAudioEl.currentTime = playerAudioEl.duration * ratio;
+});
+
+playerAudioEl?.addEventListener("timeupdate", syncPlayerTimeline);
+playerAudioEl?.addEventListener("loadedmetadata", syncPlayerTimeline);
 playerAudioEl?.addEventListener("ended", () => {
+  if (state.repeatOne) {
+    playerAudioEl.currentTime = 0;
+    playerAudioEl.play();
+    return;
+  }
+
   moveTrack(1);
 });
 
@@ -417,16 +443,44 @@ function updatePlayerMeta() {
     playerSubEl.textContent = "목록에서 곡을 선택하세요";
     playerPlayBtn.textContent = ICON_PLAY;
     playerPlayBtn.disabled = !hasQueue;
+    playerRepeatBtn.disabled = !hasQueue;
+    playerProgressEl.value = 0;
+    playerCurrentEl.textContent = "00:00";
+    playerDurationEl.textContent = "00:00";
     clearMediaSessionMetadata();
     return;
   }
 
   playerPlayBtn.disabled = false;
+  playerRepeatBtn.disabled = false;
   playerTitleEl.textContent = current.track.title;
   playerSubEl.textContent = `최신 업로더: ${current.latestSong.uploader}`;
   updateMediaSessionMetadata(current.track, current.latestSong);
 }
 
+
+
+function syncPlayerTimeline() {
+  const duration = Number.isFinite(playerAudioEl.duration) ? playerAudioEl.duration : 0;
+  const current = Number.isFinite(playerAudioEl.currentTime) ? playerAudioEl.currentTime : 0;
+
+  if (duration > 0) {
+    playerProgressEl.value = String(Math.round((current / duration) * 100));
+  } else {
+    playerProgressEl.value = "0";
+  }
+
+  playerCurrentEl.textContent = formatClock(current);
+  playerDurationEl.textContent = formatClock(duration);
+}
+
+function formatClock(seconds) {
+  if (!Number.isFinite(seconds) || seconds < 0) return "00:00";
+  const total = Math.floor(seconds);
+  const m = String(Math.floor(total / 60)).padStart(2, "0");
+  const s = String(total % 60).padStart(2, "0");
+  return `${m}:${s}`;
+}
 
 function setupMediaSessionHandlers() {
   if (!("mediaSession" in navigator)) return;

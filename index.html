@@ -64,16 +64,28 @@
     </main>
 
     <footer class="bottom-player" id="bottom-player">
-      <div class="player-meta">
-        <strong id="player-track-title">재생 대기 중</strong>
-        <span id="player-track-sub" class="meta">목록에서 곡을 선택하세요</span>
+      <div class="player-top">
+        <div class="player-cover" aria-hidden="true">♪</div>
+        <div class="player-meta">
+          <strong id="player-track-title">재생 대기 중</strong>
+          <span id="player-track-sub" class="meta">목록에서 곡을 선택하세요</span>
+        </div>
       </div>
-      <audio id="global-audio" controls></audio>
+
+      <div class="player-progress-wrap">
+        <span id="player-current" class="meta">00:00</span>
+        <input id="player-progress" type="range" min="0" max="100" value="0" step="1" aria-label="재생 위치" />
+        <span id="player-duration" class="meta">00:00</span>
+      </div>
+
       <div class="player-controls">
         <button id="player-prev" class="ghost player-btn" type="button" aria-label="이전 곡">⏮</button>
-        <button id="player-play" class="player-btn" type="button" aria-label="재생/일시정지">▶</button>
+        <button id="player-play" class="player-btn player-main-btn" type="button" aria-label="재생/일시정지">▶</button>
         <button id="player-next" class="ghost player-btn" type="button" aria-label="다음 곡">⏭</button>
+        <button id="player-repeat" class="ghost player-btn" type="button" aria-label="한 곡 반복">🔁</button>
       </div>
+
+      <audio id="global-audio"></audio>
     </footer>
 
 
