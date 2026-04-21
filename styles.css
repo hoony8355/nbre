@@ -406,18 +406,8 @@ button.ghost {
 .player-top {
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-
-.player-cover {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
-  display: grid;
-  place-items: center;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  color: #fff;
-  font-weight: 700;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .player-meta {
@@ -679,10 +669,6 @@ audio {
     padding: 8px 10px 10px;
   }
 
-  .player-cover {
-    width: 38px;
-    height: 38px;
-  }
 
   .player-main-btn {
     width: 50px;
