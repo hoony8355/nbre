@@ -117,6 +117,7 @@ playerAudioEl?.addEventListener("pause", () => {
 
 playerRepeatBtn?.addEventListener("click", () => {
   state.repeatOne = !state.repeatOne;
+  playerAudioEl.loop = state.repeatOne;
   playerRepeatBtn.classList.toggle("is-active", state.repeatOne);
   showToast(state.repeatOne ? "한 곡 반복 ON" : "한 곡 반복 OFF", "info");
 });
@@ -130,12 +131,6 @@ playerProgressEl?.addEventListener("input", () => {
 playerAudioEl?.addEventListener("timeupdate", syncPlayerTimeline);
 playerAudioEl?.addEventListener("loadedmetadata", syncPlayerTimeline);
 playerAudioEl?.addEventListener("ended", () => {
-  if (state.repeatOne) {
-    playerAudioEl.currentTime = 0;
-    playerAudioEl.play();
-    return;
-  }
-
   moveTrack(1);
 });
 
@@ -453,6 +448,8 @@ function updatePlayerMeta() {
 
   playerPlayBtn.disabled = false;
   playerRepeatBtn.disabled = false;
+  playerRepeatBtn.classList.toggle("is-active", state.repeatOne);
+  playerAudioEl.loop = state.repeatOne;
   playerTitleEl.textContent = current.track.title;
   playerSubEl.textContent = `최신 업로더: ${current.latestSong.uploader}`;
   updateMediaSessionMetadata(current.track, current.latestSong);
@@ -485,21 +482,22 @@ function formatClock(seconds) {
 function setupMediaSessionHandlers() {
   if (!("mediaSession" in navigator)) return;
 
-  navigator.mediaSession.setActionHandler("play", () => {
-    playerAudioEl.play();
-  });
+  safeSetMediaAction("play", () => playerAudioEl.play());
+  safeSetMediaAction("pause", () => playerAudioEl.pause());
 
-  navigator.mediaSession.setActionHandler("pause", () => {
-    playerAudioEl.pause();
-  });
+  // iOS lock screen may show seek ±10 UI. Map seek actions to prev/next for playlist UX.
+  safeSetMediaAction("previoustrack", () => moveTrack(-1));
+  safeSetMediaAction("nexttrack", () => moveTrack(1));
+  safeSetMediaAction("seekbackward", () => moveTrack(-1));
+  safeSetMediaAction("seekforward", () => moveTrack(1));
+}
 
-  navigator.mediaSession.setActionHandler("previoustrack", () => {
-    moveTrack(-1);
-  });
-
-  navigator.mediaSession.setActionHandler("nexttrack", () => {
-    moveTrack(1);
-  });
+function safeSetMediaAction(action, handler) {
+  try {
+    navigator.mediaSession.setActionHandler(action, handler);
+  } catch {
+    // Browser does not support this media action.
+  }
 }
 
 function updateMediaSessionMetadata(track, latestSong) {
