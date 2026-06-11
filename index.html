@@ -99,6 +99,7 @@
 
           <div class="action-row">
             <button type="button" class="ghost mini-toggle action-lyrics">가사</button>
+            <button type="button" class="ghost mini-toggle action-versions">버전</button>
             <button type="button" class="ghost mini-toggle action-mr">MR</button>
             <button type="button" class="ghost mini-toggle action-upload">업로드</button>
           </div>
@@ -120,16 +121,23 @@
                   <option value="mr">MR (반주)</option>
                 </select>
               </label>
-              <label class="full">
-                파일
-                <input class="audio-file" type="file" accept="audio/*" required />
-              </label>
+              <div class="drop-zone full" tabindex="0" role="button" aria-label="오디오 파일 드래그 앤 드롭 또는 선택">
+                <strong class="drop-title">오디오 파일 드래그 & 드롭</strong>
+                <span class="drop-help">또는 탭해서 파일 선택</span>
+                <span class="drop-file meta">선택된 파일 없음</span>
+                <input class="audio-file" type="file" accept="audio/*" />
+              </div>
               <button type="submit" class="upload-submit-btn">업로드 & 최신 반영</button>
               <p class="upload-status meta" aria-live="polite"></p>
               <div class="upload-progress" hidden>
                 <div class="upload-progress-bar"></div>
               </div>
             </form>
+          </section>
+
+          <section class="panel panel-versions" hidden>
+            <h3>최근 곡 버전 3개</h3>
+            <div class="song-version-list"></div>
           </section>
 
           <section class="panel panel-mr" hidden>

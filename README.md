@@ -5,7 +5,8 @@
 
 ## 구현 범위
 - `tracks`, `versions`, `feedback` 테이블 분리 (가사는 `tracks`에 최신본 유지)
-- 오디오 파일은 Supabase Storage 버킷 사용
+- 오디오 파일은 Supabase Storage 버킷 사용 (드래그 앤 드롭 업로드 지원)
+- 최신 곡 외 최근 곡 버전 3개를 별도 패널에서 확인
 - Realtime 구독으로 곡/피드백/가사/버전 업데이트 즉시 반영
 - 프론트는 정적 파일(`index.html`, `app.js`)이라 GitHub Pages/Vercel 둘 다 배포 가능
 

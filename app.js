@@ -197,6 +197,7 @@ function render() {
     const toggleBtn = fragment.querySelector(".track-toggle");
     const body = fragment.querySelector(".track-body");
     const latestBox = fragment.querySelector(".latest-box");
+    const songVersionList = fragment.querySelector(".song-version-list");
     const mrList = fragment.querySelector(".mr-list");
     const feedbackList = fragment.querySelector(".feedback-list");
 
@@ -227,6 +228,24 @@ function render() {
       latestBox.insertAdjacentHTML("beforeend", `<p class="meta">메모: ${escapeHtml(track.note)}</p>`);
     }
 
+    const songVersions = versions.filter((version) => version.type === "song");
+    songVersionList.innerHTML = songVersions.length
+      ? songVersions
+          .slice(0, 3)
+          .map(
+            (version, index) => `
+          <div class="version-item">
+            <div>
+              <span class="type-tag">${index === 0 ? "LATEST" : `V-${index + 1}`}</span>
+              <strong>${escapeHtml(version.file_name)}</strong>
+            </div>
+            <span class="meta">${escapeHtml(version.uploader)} · ${formatDate(version.created_at)}</span>
+            <audio controls src="${escapeHtml(version.public_url)}"></audio>
+          </div>`
+          )
+          .join("")
+      : `<p class="meta">등록된 곡 버전이 없습니다.</p>`;
+
     const mrVersions = versions.filter((version) => version.type === "mr");
     mrList.innerHTML = mrVersions.length
       ? mrVersions
@@ -244,12 +263,8 @@ function render() {
           .join("")
       : `<p class="meta">등록된 MR이 없습니다.</p>`;
 
-    const scopedFeedback = latestSong
-      ? feedback.filter((fb) => !fb.version_id || fb.version_id === latestSong.id)
-      : feedback;
-
-    feedbackList.innerHTML = scopedFeedback.length
-      ? scopedFeedback
+    feedbackList.innerHTML = feedback.length
+      ? feedback
           .map(
             (fb) =>
               `<li><strong>${escapeHtml(fb.author)}</strong> <span class="meta">${formatDate(fb.created_at)}</span><br/>${escapeHtml(fb.text)}</li>`
@@ -258,10 +273,12 @@ function render() {
             : `<li class="meta">아직 피드백이 없습니다.</li>`;
 
     const uploadPanel = fragment.querySelector(".panel-upload");
+    const versionsPanel = fragment.querySelector(".panel-versions");
     const mrPanel = fragment.querySelector(".panel-mr");
     const lyricsPanel = fragment.querySelector(".panel-lyrics");
 
     bindPanelToggle(fragment.querySelector(".action-upload"), uploadPanel);
+    bindPanelToggle(fragment.querySelector(".action-versions"), versionsPanel);
     bindPanelToggle(fragment.querySelector(".action-mr"), mrPanel);
     bindPanelToggle(fragment.querySelector(".action-lyrics"), lyricsPanel);
 
@@ -269,18 +286,67 @@ function render() {
     playTrackBtn?.addEventListener("click", () => playTrack(track.id));
 
     const uploadForm = fragment.querySelector(".upload-form");
+    const fileInput = uploadForm.querySelector(".audio-file");
+    const dropZone = uploadForm.querySelector(".drop-zone");
+    const dropFileLabel = uploadForm.querySelector(".drop-file");
+    let selectedUploadFile = null;
+
+    const setSelectedUploadFile = (file) => {
+      if (!file) return;
+      if (!file.type.startsWith("audio/")) {
+        showToast("오디오 파일만 업로드할 수 있습니다.", "error");
+        return;
+      }
+
+      selectedUploadFile = file;
+      dropFileLabel.textContent = file.name;
+      dropZone.classList.add("has-file");
+    };
+
+    fileInput.addEventListener("change", () => {
+      setSelectedUploadFile(fileInput.files[0]);
+    });
+
+    dropZone.addEventListener("click", () => fileInput.click());
+    dropZone.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        fileInput.click();
+      }
+    });
+
+    ["dragenter", "dragover"].forEach((eventName) => {
+      dropZone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        dropZone.classList.add("is-dragging");
+      });
+    });
+
+    ["dragleave", "drop"].forEach((eventName) => {
+      dropZone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        dropZone.classList.remove("is-dragging");
+      });
+    });
+
+    dropZone.addEventListener("drop", (event) => {
+      setSelectedUploadFile(event.dataTransfer.files[0]);
+    });
 
     uploadForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       const uploader = uploadForm.querySelector(".uploader").value.trim();
       const type = uploadForm.querySelector(".version-type").value;
-      const fileInput = uploadForm.querySelector(".audio-file");
       const submitBtn = uploadForm.querySelector(".upload-submit-btn");
       const statusEl = uploadForm.querySelector(".upload-status");
       const progressWrap = uploadForm.querySelector(".upload-progress");
       const progressBar = uploadForm.querySelector(".upload-progress-bar");
-      const file = fileInput.files[0];
-      if (!uploader || !file) return;
+      const file = selectedUploadFile || fileInput.files[0];
+      if (!uploader) return;
+      if (!file) {
+        showToast("업로드할 오디오 파일을 선택하세요.", "error");
+        return;
+      }
 
       submitBtn.disabled = true;
       progressWrap.hidden = false;
@@ -339,17 +405,7 @@ function render() {
         text,
       };
 
-      if (latestSong?.id) {
-        payload.version_id = latestSong.id;
-      }
-
-      let { error } = await sbClient.from("feedback").insert(payload);
-
-      if (error && String(error.message).includes("version_id")) {
-        const retryPayload = { track_id: track.id, author, text };
-        const retryResult = await sbClient.from("feedback").insert(retryPayload);
-        error = retryResult.error;
-      }
+      const { error } = await sbClient.from("feedback").insert(payload);
 
       if (error) {
         showToast(`피드백 저장 실패: ${error.message}`, "error");
